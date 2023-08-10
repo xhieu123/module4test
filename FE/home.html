@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.4.0/axios.min.js"></script>
+</head>
+<body>
+<div>
+  <button onclick="loadList()">Danh Sách Xe</button>
+  <button onclick="showFormAdd12()">Thêm Xe</button>
+  <button onclick="sort()">Săp xếp xe theo giá tăng dân</button>
+  <input type="text" placeholder="tim kiem xe"><button>Tìm kiếm</button>
+</div>
+<h3>Hiển Thị</h3>
+<div id="display"></div>
+<script>
+  loadList()
+  function loadList(){
+    axios.get("http://localhost:3000/cars").then(res=>{
+      let data = res.data
+      let str = `<table class="table table-striped" style="border: 1px solid black">
+                               <thead style="border: 1px solid black">
+                                   <tr style="border: 1px solid black">
+                                   <th scope="col" style="border: 1px solid black">id người dùng</th>
+                                   <th scope="col" style="border: 1px solid black">Tên xe</th>
+                                   <th scope="col" style="border: 1px solid black">Gia xe</th>
+                                   <th scope="col" style="border: 1px solid black">Hãng</th>
+                                   <th scope="col" style="border: 1px solid black">Mô tả</th>
+                                   <th scope="col" style="border: 1px solid black" colspan="2">Chức năng</th>
+                                   <th>
+                                   </tr>
+                               </thead>`
+      data.map(item=>{
+        str += `<tbody>
+                       <tr>
+                        <th scope="row" style="border: 1px solid black">${item.id}</th>
+                        <td style="border: 1px solid black">${item.carName}</td>
+                        <td style="border: 1px solid black">${item.carPrice}</td>
+                        <td style="border: 1px solid black">${item.category}</td>
+                        <td style="border: 1px solid black">${item.des}</td>
+                        <td>
+                        <button type="button" class="btn btn-danger" onclick="delete1(${item.id})">Delete</button></td>
+                        <td>
+                        <button type="button" class="btn btn-danger" onclick="showFormEdit(${item.id})">Edit</button></td>
+                       </tr>`
+      })
+        str += `</table>`
+      document.getElementById("display").innerHTML = str
+    })
+  }
+  function delete1(id){
+      axios.delete(`http://localhost:3000/cars/${id}`).then(res=>{
+          loadList()
+      })
+  }
+  function showFormEdit(id){
+      axios.get(`http://localhost:3000/cars/${id}`).then(res=>{
+          let data = res.data[0]
+          let str =`
+            carName: <input type="text" id="carName" value="${data.carName}"><br>
+            carCode: <input type="text" id="carCode" value="${data.carCode}"><br>
+            carPrice: <input type="text" id="carPrice" value="${data.carPrice}"><br>
+            category: <input type="text" id="category" value="${data.category}"><br>
+            des: <input type="text" id="des" value="${data.des}"><br>
+            <button onclick="edit(${id})">Edit</button>
+            `
+          document.getElementById("display").innerHTML = str
+      })
+  }
+  function edit(id) {
+          let data = {
+              carName: document.getElementById("carName").value,
+              carCode: document.getElementById("carCode").value,
+              carPrice: document.getElementById("carPrice").value,
+              category: document.getElementById("category").value,
+              des: document.getElementById("des").value,
+          }
+          axios.put(`http://localhost:3000/cars/${id}`, data).then(res => {
+              loadList()
+          })
+      }
+  function showFormAdd12() {
+      document.getElementById("display").innerHTML = `
+            carName: <input type="text" id="carName"><br>
+            carCode: <input type="text" id="carCode"><br>
+            carPrice: <input type="text" id="carPrice"><br>
+            category: <input type="text" id="category"><br>
+            des: <input type="text" id="des"><br>
+                <button onclick="add()">Save</button>
+        `
+  }
+  function add(){
+      let data = {
+          carName: document.getElementById("carName").value,
+          carCode: document.getElementById("carCode").value,
+          carPrice: document.getElementById("carPrice").value,
+          category: document.getElementById("category").value,
+          des: document.getElementById("des").value,
+      }
+      axios.post("http://localhost:3000/cars",data).then(res=>{
+          console.log(res)
+      })
+      loadList()
+  }
+
+  function sort(){
+      axios.get("http://localhost:3000/cars?carPrice=ASC").then(res=>{
+          let data = res.data
+          let str = `<table class="table table-striped" style="border: 1px solid black">
+                               <thead style="border: 1px solid black">
+                                   <tr style="border: 1px solid black">
+                                   <th scope="col" style="border: 1px solid black">id người dùng</th>
+                                   <th scope="col" style="border: 1px solid black">Tên xe</th>
+                                   <th scope="col" style="border: 1px solid black">Gia xe</th>
+                                   <th scope="col" style="border: 1px solid black">Hãng</th>
+                                   <th scope="col" style="border: 1px solid black">Mô tả</th>
+                                   <th scope="col" style="border: 1px solid black" colspan="2">Chức năng</th>
+                                   <th>
+                                   </tr>
+                               </thead>`
+          data.map(item=>{
+              str += `<tbody>
+                       <tr>
+                        <th scope="row" style="border: 1px solid black">${item.id}</th>
+                        <td style="border: 1px solid black">${item.carName}</td>
+                        <td style="border: 1px solid black">${item.carPrice}</td>
+                        <td style="border: 1px solid black">${item.category}</td>
+                        <td style="border: 1px solid black">${item.des}</td>
+                        <td>
+                        <button type="button" class="btn btn-danger" onclick="delete1(${item.id})">Delete</button></td>
+                        <td>
+                        <button type="button" class="btn btn-danger" onclick="showFormEdit(${item.id})">Edit</button></td>
+                       </tr>`
+          })
+          str += `</table>`
+          document.getElementById("display").innerHTML = str
+      })
+  }
+
+</script>
+</body>
+</html>
